@@ -1,10 +1,12 @@
 class Variable:
-    """we treat every number as Variable class
+    """Treat every number as Variable class
     """
     def __init__(self,data: any):
         self.data = data
 
 class Function:
+    """Treat every function as a class that extends Function class
+    """
     def __call__(self,input: Variable):
         # データを取り出す
         x=input.data
