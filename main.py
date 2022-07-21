@@ -1,9 +1,13 @@
+import numpy as np
 class Variable:
     """
     Treat every number as Variable class
     Each Variable has its own gradient
     """
-    def __init__(self,data: any):
+    def __init__(self,data):
+        if data is not None:
+            if not isinstance(data,np.ndarray):
+                raise TypeError(f"{type(data)} is not supported")
         self.data = data
         self.grad=None
         self.creater=None
@@ -12,6 +16,9 @@ class Variable:
         self.creater = func
         
     def backward(self):
+        if self.grad is None:
+            self.grad =np.ones_like(self.data)
+        
         # implement by recursion
         # f=self.creater
         # if f is not None:
@@ -38,7 +45,7 @@ class Function:
         
         # 計算内容
         y=self.forward(x)
-        output=Variable(y)
+        output=Variable(as_array(y))
         
         # make Variable remember Function as parent
         output.set_creater(self)
@@ -54,6 +61,11 @@ class Function:
         # メソッドは継承して実装
         raise NotImplementedError()
 
+def as_array(x):
+    if np.isscalar(x):
+        return np.array(x)
+    return x
+
 class Square(Function):
     def forward(self,x):
         return x**2
@@ -62,6 +74,9 @@ class Square(Function):
         x=self.input.data
         gx=2*x*gy
         return gx
+
+def square(x):
+    return Square()(x)
 
 class Exp(Function):
     def forward(self,x):
@@ -72,24 +87,22 @@ class Exp(Function):
         gx=np.exp(x)*gy
         return gx
 
+def exp(x):
+    return Exp()(x)
+
 def numerical_diff(f,x,eps=1e-4):
     x0=Variable(x.data-eps)
+
     x1=Variable(x.data+eps)
     y0=f(x0)
     y1=f(x1)
     return (y1.data-y0.data)/(2*eps)
 
 
-import numpy as np
 x=Variable(np.array(0.5))
-A=Square()
-B=Exp()
-C=Square()
 
 print("x:",x.data)
-a=A(x)
-b=B(a)
-y=C(b)
+y=square(exp(square(x)))
 print("y:",y.data)
 
 # manual back propagation
@@ -109,6 +122,5 @@ print("y:",y.data)
 # assert y.creater.input.creater.input.creater.input==x
 
 # automatic back propagation
-y.grad=np.array(1.0)
 y.backward()
 print("x_grad:",x.grad)
