@@ -39,25 +39,26 @@ class Variable:
 class Function:
     """Treat every function as a class that extends Function class
     """
-    def __call__(self,input: Variable):
+    def __call__(self,inputs):
         # データを取り出す
-        x=input.data
+        xs=[x.data for x in inputs]
         
         # 計算内容
-        y=self.forward(x)
-        output=Variable(as_array(y))
+        ys=self.forward(xs)
+        outputs=[Variable(as_array(y)) for y in ys]
         
         # make Variable remember Function as parent
-        output.set_creater(self)
-        self.input=input
-        self.output=output
-        return output
+        for output in outputs:
+            output.set_creater(self)
+        self.inputs=inputs
+        self.outputs=outputs
+        return outputs
 
-    def forward(self,x):
+    def forward(self,xs):
         # メソッドは継承して実装
         raise NotImplementedError()
 
-    def backward(self,gy):
+    def backward(self,gys):
         # メソッドは継承して実装
         raise NotImplementedError()
 
@@ -89,6 +90,13 @@ class Exp(Function):
 
 def exp(x):
     return Exp()(x)
+
+class Add(Function):
+    def forward(self,xs):
+        x0,x1=xs
+        y=x0 + x1
+        return (y,)
+    
 
 def numerical_diff(f,x,eps=1e-4):
     x0=Variable(x.data-eps)
