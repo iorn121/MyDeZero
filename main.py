@@ -98,29 +98,34 @@ def numerical_diff(f,x,eps=1e-4):
     y1=f(x1)
     return (y1.data-y0.data)/(2*eps)
 
+def main():
 
-x=Variable(np.array(0.5))
+    x=Variable(np.array(0.5))
 
-print("x:",x.data)
-y=square(exp(square(x)))
-print("y:",y.data)
+    print("x:",x.data)
+    y=square(exp(square(x)))
+    print("y:",y.data)
 
-# manual back propagation
-# y.grad=np.array(1.0)
-# print("y_grad:",y.grad)
-# b.grad=C.backward(y.grad)
-# a.grad=B.backward(b.grad)
-# x.grad=A.backward(a.grad)
-# print("x_grad:",x.grad)
+    # manual back propagation
+    # y.grad=np.array(1.0)
+    # print("y_grad:",y.grad)
+    # b.grad=C.backward(y.grad)
+    # a.grad=B.backward(b.grad)
+    # x.grad=A.backward(a.grad)
+    # print("x_grad:",x.grad)
 
-# check nodes of graph in the reverse direction
-# assert y.creater==C
-# assert y.creater.input==b
-# assert y.creater.input.creater==B
-# assert y.creater.input.creater.input==a
-# assert y.creater.input.creater.input.creater==A
-# assert y.creater.input.creater.input.creater.input==x
+    # check nodes of graph in the reverse direction
+    # assert y.creater==C
+    # assert y.creater.input==b
+    # assert y.creater.input.creater==B
+    # assert y.creater.input.creater.input==a
+    # assert y.creater.input.creater.input.creater==A
+    # assert y.creater.input.creater.input.creater.input==x
 
-# automatic back propagation
-y.backward()
-print("x_grad:",x.grad)
+    # automatic back propagation
+    y.backward()
+    print("x_grad:",x.grad)
+
+
+if __name__ == "__main__":
+    main()
