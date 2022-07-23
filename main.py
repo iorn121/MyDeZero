@@ -1,3 +1,4 @@
+from tkinter import N
 import numpy as np
 class Variable:
     """
@@ -11,9 +12,11 @@ class Variable:
         self.data = data
         self.grad=None
         self.creater=None
+        self.generation=0
     
     def set_creater(self,func):
         self.creater = func
+        self.generation=func.generation+1
         
     def backward(self):
         if self.grad is None:
@@ -27,7 +30,14 @@ class Variable:
         #     x.backward()
         
         #  implement by loop
-        funcs=[self.creater]
+        funcs=[]
+        seen_set=set()
+        def add_func(f):
+            if f not in seen_set:
+                funcs.append(f)
+                seen_set.add(f)
+                funcs.sort(key=lambda x: x.generation)
+        add_func(self.creater)
         while funcs:
             f=funcs.pop()
             # x,y=f.input,f.output
@@ -43,7 +53,7 @@ class Variable:
                 else:
                     x.grad+=gx
                 if x.creater is not None:
-                    funcs.append(x.creater)
+                    add_func(x.creater)
     
     def cleargrad(self):
         self.grad=None
@@ -60,7 +70,7 @@ class Function:
         if not isinstance(ys,tuple):
             ys=(ys,)
         outputs=[Variable(as_array(y)) for y in ys]
-        
+        self.generation=max([x.generation for x in inputs])
         # make Variable remember Function as parent
         for output in outputs:
             output.set_creater(self)
@@ -152,8 +162,8 @@ def main():
     print("x_grad:",x.grad)
 
     a=Variable(np.array(2.0))
-    b=Variable(np.array(3.0))
-    c=add(square(a),square(b))
+    b=square(a)
+    c=add(square(b),square(b))
     c.backward()
     print(c.data)
     print(a.grad)
