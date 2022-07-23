@@ -38,9 +38,15 @@ class Variable:
             if not isinstance(gxs, tuple):
                 gxs=(gxs,)
             for x,gx in zip(f.inputs,gxs):
-                x.grad=gx
+                if x.grad is None:
+                    x.grad=gx
+                else:
+                    x.grad+=gx
                 if x.creater is not None:
                     funcs.append(x.creater)
+    
+    def cleargrad(self):
+        self.grad=None
 
 class Function:
     """Treat every function as a class that extends Function class
