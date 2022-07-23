@@ -1,5 +1,21 @@
 import numpy as np
+import contextlib
 import weakref
+class Config:
+    enable_back_prop=True
+    
+
+@contextlib.contextmanager
+def using_config(name,value):
+    old_value=getattr(Config,name)
+    setattr(Config,name,value)
+    try:
+        yield
+    finally:
+        setattr(Config,name,old_value)
+
+def no_grad():
+    return using_config("enable_back_prop",False)
 class Variable:
     """
     Treat every number as Variable class
@@ -18,7 +34,7 @@ class Variable:
         self.creater = func
         self.generation=func.generation+1
         
-    def backward(self):
+    def backward(self,retain_grad=False):
         if self.grad is None:
             self.grad =np.ones_like(self.data)
         
@@ -54,6 +70,11 @@ class Variable:
                     x.grad+=gx
                 if x.creater is not None:
                     add_func(x.creater)
+            
+            # reset grad of variables used along the way
+            if not retain_grad:
+                for y in f.outputs:
+                    y().grad=None
     
     def cleargrad(self):
         self.grad=None
@@ -70,12 +91,13 @@ class Function:
         if not isinstance(ys,tuple):
             ys=(ys,)
         outputs=[Variable(as_array(y)) for y in ys]
-        self.generation=max([x.generation for x in inputs])
-        # make Variable remember Function as parent
-        for output in outputs:
-            output.set_creater(self)
-        self.inputs=inputs
-        self.outputs=[weakref.ref(output) for output in outputs]
+        if Config.enable_back_prop:
+            self.generation=max([x.generation for x in inputs])
+            # make Variable remember Function as parent
+            for output in outputs:
+                output.set_creater(self)
+            self.inputs=inputs
+            self.outputs=[weakref.ref(output) for output in outputs]
         return outputs if len(outputs)>1 else outputs[0]
 
     def forward(self,xs):
@@ -159,15 +181,14 @@ def main():
 
     # automatic back propagation
     y.backward()
+    print(f"back propagation: {Config.enable_back_prop}")
     print("x_grad:",x.grad)
 
-    a=Variable(np.array(2.0))
-    b=square(a)
-    c=add(square(b),square(b))
-    c.backward()
-    print(c.data)
-    print(a.grad)
-    print(b.grad)
+    with no_grad():
+        a=Variable(np.array(2.0))
+        b=square(a)
+        c=add(square(b),square(b))
+        print(c.data)
 
 
 if __name__ == "__main__":
