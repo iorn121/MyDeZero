@@ -1,5 +1,5 @@
-from tkinter import N
 import numpy as np
+import weakref
 class Variable:
     """
     Treat every number as Variable class
@@ -42,7 +42,7 @@ class Variable:
             f=funcs.pop()
             # x,y=f.input,f.output
             # x.grad=f.backward(y.grad)
-            gys=[output.grad for output in f.outputs]
+            gys=[output().grad for output in f.outputs]
             gxs=f.backward(*gys)
             
             if not isinstance(gxs, tuple):
@@ -75,7 +75,7 @@ class Function:
         for output in outputs:
             output.set_creater(self)
         self.inputs=inputs
-        self.outputs=outputs
+        self.outputs=[weakref.ref(output) for output in outputs]
         return outputs if len(outputs)>1 else outputs[0]
 
     def forward(self,xs):
