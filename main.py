@@ -56,6 +56,12 @@ class Variable:
         p=str(self.data).replace("\n","\n"+" "*9)
         return f"variable({p})"
     
+    def __mul__(self, other):
+        return mul(self, other)
+    
+    def __add__(self, other):
+        return add(self, other)
+    
     def set_creater(self,func):
         self.creater = func
         self.generation=func.generation+1
@@ -181,6 +187,18 @@ def numerical_diff(f,x,eps=1e-4):
     y1=f(x1)
     return (y1.data-y0.data)/(2*eps)
 
+class Mul(Function):
+    def forward(self,x0,x1):
+        y=x0*x1
+        return y
+    
+    def backward(self,gy):
+        x0,x1=self.inputs[0].data,self.inputs[1].data
+        return gy*x1,gy*x0
+
+def mul(x0,x1):
+    return Mul()(x0,x1)
+
 def main():
 
     x=Variable(np.array(0.5))
@@ -212,8 +230,8 @@ def main():
 
     with no_grad():
         a=Variable(np.array(2.0))
-        b=square(a)
-        c=add(square(b),square(b))
+        b=Variable(np.array(3.0))
+        c=square(a)*square(b)+a+b
         print(c)
 
 
