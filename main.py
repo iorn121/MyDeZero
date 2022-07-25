@@ -16,11 +16,17 @@ def using_config(name,value):
 
 def no_grad():
     return using_config("enable_back_prop",False)
+
+def as_variable(obj):
+    if isinstance(obj,Variable):
+        return obj
+    return Variable(obj)
 class Variable:
     """
     Treat every number as Variable class
     Each Variable has its own gradient
     """
+    __array_priority__ = 200
     def __init__(self,data,name=None):
         if data is not None:
             if not isinstance(data,np.ndarray):
@@ -58,9 +64,14 @@ class Variable:
     
     def __mul__(self, other):
         return mul(self, other)
-    
+    def __rmul__(self, other):
+        return mul(self, other)
     def __add__(self, other):
         return add(self, other)
+    
+    def __radd__(self, other):
+        return add(self, other)
+    
     
     def set_creater(self,func):
         self.creater = func
@@ -115,6 +126,7 @@ class Function:
     """Treat every function as a class that extends Function class
     """
     def __call__(self,*inputs):
+        inputs=[as_variable(x) for x in inputs]
         # データを取り出す
         xs=[x.data for x in inputs]
         
@@ -178,6 +190,7 @@ class Add(Function):
         return gy,gy
     
 def add(x0,x1):
+    x1=as_array(x1)
     return Add()(x0,x1)
 def numerical_diff(f,x,eps=1e-4):
     x0=Variable(x.data-eps)
@@ -231,7 +244,7 @@ def main():
     with no_grad():
         a=Variable(np.array(2.0))
         b=Variable(np.array(3.0))
-        c=square(a)*square(b)+a+b
+        c=np.array([7.0])+square(a)*square(b)
         print(c)
 
 
