@@ -21,14 +21,40 @@ class Variable:
     Treat every number as Variable class
     Each Variable has its own gradient
     """
-    def __init__(self,data):
+    def __init__(self,data,name=None):
         if data is not None:
             if not isinstance(data,np.ndarray):
                 raise TypeError(f"{type(data)} is not supported")
         self.data = data
+        self.name=name
         self.grad=None
         self.creater=None
         self.generation=0
+    
+    @property
+    def shape(self):
+        return self.data.shape
+    
+    @property
+    def ndim(self):
+        return self.data.ndim
+    
+    @property
+    def size(self):
+        return self.data.size
+    
+    @property
+    def dtype(self):
+        return self.data.dtype
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        if self.data is None:
+            return "variable(None)"
+        p=str(self.data).replace("\n","\n"+" "*9)
+        return f"variable({p})"
     
     def set_creater(self,func):
         self.creater = func
@@ -159,9 +185,9 @@ def main():
 
     x=Variable(np.array(0.5))
 
-    print("x:",x.data)
+    print("x:",x)
     y=square(exp(square(x)))
-    print("y:",y.data)
+    print("y:",y)
 
     # manual back propagation
     # y.grad=np.array(1.0)
@@ -188,7 +214,7 @@ def main():
         a=Variable(np.array(2.0))
         b=square(a)
         c=add(square(b),square(b))
-        print(c.data)
+        print(c)
 
 
 if __name__ == "__main__":
