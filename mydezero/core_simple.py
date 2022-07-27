@@ -112,6 +112,10 @@ class Variable:
         self.grad=None
 
 
+def as_array(x):
+    if np.isscalar(x):
+        return np.array(x)
+    return x
 
 class Function:
     """Treat every function as a class that extends Function class
@@ -143,10 +147,6 @@ class Function:
         # メソッドは継承して実装
         raise NotImplementedError()
 
-def as_array(x):
-    if np.isscalar(x):
-        return np.array(x)
-    return x
 
 class Square(Function):
     def forward(self,x):
@@ -201,6 +201,7 @@ class Mul(Function):
         return gy*x1,gy*x0
 
 def mul(x0,x1):
+    x1=as_array(x1)
     return Mul()(x0,x1)
 
 class Neg(Function):
