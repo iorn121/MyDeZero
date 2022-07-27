@@ -1,5 +1,6 @@
 import numpy as np
 from mydezero import Variable
+from mydezero.utils import _dot_var,_dot_func,plot_dot_graph
 
 def sphere(x,y):
     z=x**2+y**2
@@ -26,7 +27,12 @@ def main():
     print("z:",z)
     print("x.grad",x.grad)
     print("y.grad",y.grad)
+    
+    x.name="x"
+    y.name="y"
+    z.name="z"
 
+    plot_dot_graph(z,verbose=False,to_file='matyas.png')
 
 
 
