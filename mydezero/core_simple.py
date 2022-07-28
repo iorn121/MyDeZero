@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import contextlib
 import weakref
@@ -34,7 +35,7 @@ class Variable:
         self.data = data
         self.name=name
         self.grad=None
-        self.creater=None
+        self.creator=None
         self.generation=0
     
     @property
@@ -62,8 +63,8 @@ class Variable:
         p=str(self.data).replace("\n","\n"+" "*9)
         return f"variable({p})"    
     
-    def set_creater(self,func):
-        self.creater = func
+    def set_creator(self,func):
+        self.creator = func
         self.generation=func.generation+1
         
     def backward(self,retain_grad=False):
@@ -71,7 +72,7 @@ class Variable:
             self.grad =np.ones_like(self.data)
         
         # implement by recursion
-        # f=self.creater
+        # f=self.creator
         # if f is not None:
         #     x=f.input
         #     x.grad=f.backward(self.grad)
@@ -85,7 +86,7 @@ class Variable:
                 funcs.append(f)
                 seen_set.add(f)
                 funcs.sort(key=lambda x: x.generation)
-        add_func(self.creater)
+        add_func(self.creator)
         while funcs:
             f=funcs.pop()
             # x,y=f.input,f.output
@@ -100,8 +101,8 @@ class Variable:
                     x.grad=gx
                 else:
                     x.grad+=gx
-                if x.creater is not None:
-                    add_func(x.creater)
+                if x.creator is not None:
+                    add_func(x.creator)
             
             # reset grad of variables used along the way
             if not retain_grad:
@@ -134,7 +135,7 @@ class Function:
             self.generation=max([x.generation for x in inputs])
             # make Variable remember Function as parent
             for output in outputs:
-                output.set_creater(self)
+                output.set_creator(self)
             self.inputs=inputs
             self.outputs=[weakref.ref(output) for output in outputs]
         return outputs if len(outputs)>1 else outputs[0]
@@ -260,6 +261,9 @@ class Pow(Function):
         return gx
 def pow(x,c):
     return Pow(c)(x)
+
+
+
 
 def setup_variable():
     Variable.__add__=add

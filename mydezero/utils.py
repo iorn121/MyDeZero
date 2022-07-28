@@ -30,8 +30,8 @@ def get_dot_graph(output,verbose=True):
             funcs.append(f)
             seen_set.add(f)
     
-    add_func(output.creater)
-    txt+=_dot_var(output)
+    add_func(output.creator)
+    txt+=_dot_var(output,verbose)
 
     while funcs:
         func=funcs.pop()
@@ -39,8 +39,8 @@ def get_dot_graph(output,verbose=True):
         for x in func.inputs:
             txt+=_dot_var(x,verbose)
 
-            if x.creater is not None:
-                add_func(x.creater)
+            if x.creator is not None:
+                add_func(x.creator)
     return 'digraph g {\n'+txt+'}'
 
 def plot_dot_graph(output,verbose=True,to_file='graph.png'):
