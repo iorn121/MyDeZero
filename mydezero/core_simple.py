@@ -225,6 +225,7 @@ class Sub(Function):
         return gy,-gy
 
 def sub(x0,x1):
+    x1=as_array(x1)
     return Sub()(x0,x1)
 
 def rsub(x0,x1):
@@ -242,6 +243,7 @@ class Div(Function):
         return gx0,gx1
 
 def div(x0,x1):
+    x1=as_array(x1)
     return Div()(x0,x1)
 
 def rdiv(x0,x1):
