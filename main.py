@@ -48,29 +48,26 @@ def rosenbrock(x0,x1):
     return y
 
 
+def f(x):
+    y=x**4-2*x**2
+    return y
+
+def gx2(x):
+    return 12*x**2 -4
+
+
+
 def main():
 
-    x0=Variable(np.array(0.0))
-    x1=Variable(np.array(2.0))
-    plt.figure(figsize=(8,6))
-    data_x0=x0.data
-    data_x1=x1.data
-    lr=1e-3
-    iters=10000
+    x=Variable(np.array(2.0))
+    iters=10
     for i in range(iters):
-        print(x0,x1)
-        data_x0=np.append(data_x0,x0.data)
-        data_x1=np.append(data_x1,x1.data)
-        y=rosenbrock(x0,x1)
-        x0.cleargrad()
-        x1.cleargrad()
+        print(x)
+        y=f(x)
+        x.cleargrad()
         y.backward()
 
-        x0.data-=x0.grad*lr
-        x1.data-=x1.grad*lr
-    print(data_x0)
-    plt.scatter(data_x0,data_x1,s=iters)
-    plt.show()
+        x.data-=x.grad/gx2(x.data)
 
 if __name__ == "__main__":
     main()
