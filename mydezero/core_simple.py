@@ -3,11 +3,19 @@ import numpy as np
 import contextlib
 import weakref
 class Config:
+    """If backward isn't needed, use Config set as False
+    """
     enable_back_prop=True
     
 
 @contextlib.contextmanager
 def using_config(name,value):
+    """When backwards isn't needed, write `with using_config(name,value):`
+
+    Args:
+        name (string): Config attribute
+        value (bool): whether attribute is enabled
+    """
     old_value=getattr(Config,name)
     setattr(Config,name,value)
     try:
@@ -16,6 +24,8 @@ def using_config(name,value):
         setattr(Config,name,old_value)
 
 def no_grad():
+    """use to test no backward
+    """
     return using_config("enable_back_prop",False)
 
 def as_variable(obj):
