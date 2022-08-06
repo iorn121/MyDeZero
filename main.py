@@ -2,7 +2,8 @@ import math
 import numpy as np
 from mydezero import Variable, Function
 from mydezero.utils import _dot_var, _dot_func, plot_dot_graph
-
+import matplotlib.pyplot as plt
+import mydezero.functions as F
 
 def sphere(x, y):
     z = x**2+y**2
@@ -62,22 +63,24 @@ def gx2(x):
 
 def main():
 
-    x = Variable(np.array(2.0))
-    iters = 10
-    for i in range(iters):
-        print(i, x)
+    x = Variable(np.linspace(-7,7,200))
+    y=F.sin(x)
+    y.backward(create_graph=True)
 
-        y = f(x)
+    logs=[y.data]
+
+    for i in range(3):
+        logs.append(x.grad.data)
+        gx=x.grad
         x.cleargrad()
-        y.backward(create_graph=True)
-
-        gx = x.grad
-        x.cleargrad()
-        gx.backward()
-        gx2 = x.grad
-
-        x.data -= gx.data / gx2.data
-
+        gx.backward(create_graph=True)
+    
+    labels=["y=sin(x)","y'","y''","y'''"]
+    print(len(logs))
+    for i,v in enumerate(logs):
+        plt.plot(x.data,logs[i],label=labels[i])
+    plt.legend(loc="lower right")
+    plt.show()
 
 if __name__ == "__main__":
     main()
