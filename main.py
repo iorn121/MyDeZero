@@ -21,19 +21,6 @@ def goldstein(x, y):
     return z
 
 
-class Sin(Function):
-    def forward(self, x):
-        y = np.sin(x)
-        return y
-
-    def backward(self, gy):
-        x = self.inputs[0].data
-        gx = np.cos(x)*gy
-        return gx
-
-
-def sin(x):
-    return Sin()(x)
 
 
 def my_sin(x, threshold=1e-4):
@@ -63,23 +50,23 @@ def gx2(x):
 
 def main():
 
-    x = Variable(np.linspace(-7,7,200))
-    y=F.sin(x)
+    x = Variable(np.linspace(-7, 7, 200))
+    y = F.sin(x)
     y.backward(create_graph=True)
 
-    logs=[y.data]
+    logs = [y.data]
 
     for i in range(3):
         logs.append(x.grad.data)
-        gx=x.grad
+        gx = x.grad
         x.cleargrad()
         gx.backward(create_graph=True)
-    
-    labels=["y=sin(x)","y'","y''","y'''"]
-    print(len(logs))
-    for i,v in enumerate(logs):
-        plt.plot(x.data,logs[i],label=labels[i])
-    plt.legend(loc="lower right")
+
+
+    labels = ["y=sin(x)", "y'", "y''", "y'''"]
+    for i, v in enumerate(logs):
+        plt.plot(x.data, logs[i], label=labels[i])
+    plt.legend(loc='lower right')
     plt.show()
 
 if __name__ == "__main__":
