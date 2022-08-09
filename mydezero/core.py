@@ -1,4 +1,5 @@
 import math
+import mydezero
 import numpy as np
 import contextlib
 import weakref
@@ -122,7 +123,19 @@ class Variable:
 
     def cleargrad(self):
         self.grad = None
+        
+    
+    def reshape(self,*shape):
+        if len(shape) ==1 and isinstance(shape[0],(tuple,list)):
+            shape=shape[0]
+        return mydezero.functions.reshape(self,shape)
 
+    def transpose(self):
+        return mydezero.functions.transpose(self)
+    
+    @property
+    def T(self):
+        return mydezero.functions.transpose(self)
 
 def as_array(x):
     if np.isscalar(x):
