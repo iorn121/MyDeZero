@@ -48,26 +48,38 @@ def gx2(x):
     return 12*x**2 - 4
 
 
+
 def main():
+    def predict(x):
+        y=F.matMul(x,W)+b
+        return y
+    
+    np.random.seed(0)
+    x=np.random.rand(100,1)
+    y=5+2*x+np.random.rand(100,1)
+    x,y=Variable(x),Variable(y)
+    # plt.scatter(x,y)
+    # plt.show()
+    W=Variable(np.zeros((1,1)))
+    b=Variable(np.zeros(1))
+    
+    def mean_squared_error(x0,x1):
+        diff=x0-x1
+        return F.sum(diff**2)/len(diff)
+    
+    lr=0.1
+    iters=100
+    for i in range(iters):
+        y_pred=predict(x)
+        loss=mean_squared_error(y,y_pred)
 
-    x = Variable(np.linspace(-7, 7, 200))
-    y = F.sin(x)
-    y.backward(create_graph=True)
-
-    logs = [y.data]
-
-    for i in range(3):
-        logs.append(x.grad.data)
-        gx = x.grad
-        x.cleargrad()
-        gx.backward(create_graph=True)
-
-
-    labels = ["y=sin(x)", "y'", "y''", "y'''"]
-    for i, v in enumerate(logs):
-        plt.plot(x.data, logs[i], label=labels[i])
-    plt.legend(loc='lower right')
-    plt.show()
+        W.cleargrad()
+        b.cleargrad()
+        loss.backward()
+        
+        print(W,b,loss)
+        W.data-=lr*W.grad.data
+        b.data-=lr*b.grad.data
 
 if __name__ == "__main__":
     main()
