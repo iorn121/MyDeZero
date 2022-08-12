@@ -158,3 +158,21 @@ class MeanSquaredError(Function):
         gx0=gy*diff*(2./len(diff))
         gx1=-gx0
         return gx0,gx1
+
+def mean_squared_error(x0, x1):
+    return MeanSquaredError()(x0, x1)
+    
+def linear_simple(x,W,b=None):
+    x,W=as_variable(x),as_variable(W)
+    t=matMul(x,W)
+    if b is None:
+        return t
+    
+    y=t+b
+    t.data=None
+    return y
+
+def sigmoid_simple(x):
+    x=as_variable(x)
+    y=1/(1+exp(-x))
+    return y
