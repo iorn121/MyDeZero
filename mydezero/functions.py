@@ -196,7 +196,7 @@ def linear(x, W, b=None):
 
 class Exp(Function):
     def forward(self, x):
-        y = x.exp(x)
+        y = np.exp(x)
         return y
 
     def backward(self, gy):
